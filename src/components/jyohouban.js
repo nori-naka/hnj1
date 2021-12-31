@@ -153,7 +153,7 @@ const get_hinanjyo = (cur_latlng, map) => {
                 latlng
               ],
               routeWhileDragging: true,
-              language: 'ja'
+              language: 'en'
           }).addTo(map);
         });  
       }
