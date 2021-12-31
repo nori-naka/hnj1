@@ -2,6 +2,9 @@
   <div class="map_layout">
     <div v-if="false" class="overlay"></div>
     <div id="map" />
+    <div id="close_btn">
+      <img :src="img_close_btn" />
+    </div>
   </div>
 </template>
 
@@ -24,6 +27,7 @@ export default {
       last_coords: { lat: "", lng: "", time_stamp: 0 },
       profile: {},
       self_marker: null,
+      img_close_btn: require("../assets/close05.png")
     }
   },
   async mounted() {
@@ -49,6 +53,7 @@ export default {
         opacity: 0.5
       })
     );
+    this.close_btn = document.getElementById("close_btn");
 
   //   const hw_layer = L.geoJSON(hw_json, {
   //     style: () => {
@@ -151,7 +156,7 @@ export default {
 
       // 避難所アプリ
       if (distance(this.coords, this.last_coords) > 0.01) {
-        get_hinanjyo(this.coords, this.map);
+        get_hinanjyo(this.coords, this.map, this.close_btn);
       }
 
       // モバ情の場合
@@ -168,6 +173,19 @@ export default {
 </script>
 
 <style>
+#close_btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border-radius: 50%;
+  background-color: #000;
+  z-index: 100;
+  padding: 0px;
+  /* display: none; */
+}
+.on_disp {
+  /* display: block; */
+}
 .icon_style {
   border-radius: 50%;
   border-color: #549fa9;

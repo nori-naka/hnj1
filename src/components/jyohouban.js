@@ -116,7 +116,7 @@ const distance = (latlng1, latlng2) => {
 }
 
 let last_routing = null;
-const get_hinanjyo = (cur_latlng, map) => {
+const get_hinanjyo = (cur_latlng, map, close_btn) => {
   L.geoJSON(hj_json, {
     pointToLayer: (pt, latlng) => {
 
@@ -144,8 +144,10 @@ const get_hinanjyo = (cur_latlng, map) => {
             <h3>${pt.properties["所在地"]}</h3>`)
           .on("click", () => {
             if (last_routing) {
-              map.removeControl(last_routing);
-              last_routing = null;
+              on_close_btn();
+              // map.removeControl(last_routing);
+              // last_routing = null;
+              // close_btn.removeEventListener("click", on_close_btn);
             }
             last_routing = L.Routing.control({
               waypoints: [
@@ -154,8 +156,16 @@ const get_hinanjyo = (cur_latlng, map) => {
               ],
               routeWhileDragging: true,
               language: 'en'
-          }).addTo(map);
-        });  
+            }).addTo(map);
+            const on_close_btn = () => {
+              map.removeControl(last_routing);
+              last_routing = null;
+              close_btn.classList.remove("on_disp");              
+              close_btn.removeEventListener("click", on_close_btn);
+            }
+            close_btn.classList.add("on_disp");
+            close_btn.addEventListener("click", on_close_btn, false);
+        });
       }
     },
     // onEachFeature: (feature, layer) => {
