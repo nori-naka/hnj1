@@ -241,4 +241,4 @@ const get_events = async ({lat, lon, range}, map) => {
   // })
 }
 
-export { get_events, equalObj, get_address, get_hinanjyo };
+export { get_events, equalObj, get_address, get_hinanjyo, distance };

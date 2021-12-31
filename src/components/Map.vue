@@ -9,8 +9,8 @@
 import "leaflet/dist/leaflet.css"
 import L from "leaflet";
 import { wakeupLock } from "./wakeupLock";
-import { get_address, get_hinanjyo } from "./jyohouban";
-import { line_init } from "./LINE";
+import { get_address, get_hinanjyo, distance } from "./jyohouban";
+// import { line_init } from "./LINE";
 // import { get_events, get_address, get_hinanjyo } from "./jyohouban";
 // import hw_json from "../assets/N06-20_HighwaySection.json";
 
@@ -103,22 +103,21 @@ export default {
       // 初めてgeo_successが実行されるときのみ、実行される
       if (this.first_flag) {
         this.map.panTo(latlng, {animate: true});
-        get_hinanjyo(this.coords, this.map);
 
-        line_init(p => {
-          this.profile = p;
-          console.log("----------PROFILE-----------")
-          console.log(this.profile);
-          if (this.self_marker && this.profile.pictureUrl) {
-            this.self_marker.setIcon(L.icon({
-              className: "icon_style",
-              iconUrl: this.profile.pictureUrl,
-              iconSize: [40, 40],
-              iconAnchor: [20, 20],
-              popupAnchor: [0, -20]
-            }));
-          }
-        });
+        // line_init(p => {
+        //   this.profile = p;
+        //   console.log("----------PROFILE-----------")
+        //   console.log(this.profile);
+        //   if (this.self_marker && this.profile.pictureUrl) {
+        //     this.self_marker.setIcon(L.icon({
+        //       className: "icon_style",
+        //       iconUrl: this.profile.pictureUrl,
+        //       iconSize: [40, 40],
+        //       iconAnchor: [20, 20],
+        //       popupAnchor: [0, -20]
+        //     }));
+        //   }
+        // });
         this.first_flag = false;
       }
 
@@ -148,6 +147,11 @@ export default {
         } else {
           this.self_marker.bindPopup(popup_content);
         }
+      }
+
+      // 避難所アプリ
+      if (distance(this.coords, this.last_coords) > 0.01) {
+        get_hinanjyo(this.coords, this.map);
       }
 
       // モバ情の場合
