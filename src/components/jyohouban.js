@@ -8,7 +8,7 @@ import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-// import locale_ja from "./ja.js";
+import locale_ja from "./ja.js";
 
 let DefaultIcon = L.icon({
   iconUrl: icon,
@@ -21,7 +21,53 @@ let DefaultIcon = L.icon({
   shadowSize: [41, 41]
 });
 L.Marker.prototype.options.icon = DefaultIcon;
-// L.Routing.localization.ja = locale_ja;
+L.Routing.Localization.ja = locale_ja;
+
+// L.Routing.Localization['ja'] =
+// // L.extend(L.Routing.Localization,
+// // { 
+//   {
+//     directions: {
+//       N: '北',
+//       NE: '北東',
+//       E: '東',
+//       SE: '南東',
+//       S: '南',
+//       SW: '南西',
+//       W: '西',
+//       NW: '北西'
+//     },
+//     instructions: {
+//       // instruction, postfix if the road is named
+//       'Head':
+//           ['{road} {dir}方向', ''],
+//       'Continue':
+//           ['{road} {dir}方向道なり', ''],
+//       'SlightRight':
+//           ['{road} 右方向', ''],
+//       'Right':
+//           ['{road} 右折',''],
+//       'SharpRight':
+//           ['{road} 右急カーブ', ''],
+//       'TurnAround':
+//           ['Uターン', ''],
+//       'SharpLeft':
+//           ['{road} 左急カーブ', ''],
+//       'Left':
+//           ['{road} 左折', ''],
+//       'SlightLeft':
+//           ['{road} 左方向', ''],
+//       'WaypointReached':
+//           ['分岐点到着'],
+//       'Roundabout':
+//           ['Take the {exitStr} exit in the roundabout', ' onto {road}'],
+//       'DestinationReached':
+//           ['目的地到着'],
+//     },
+//     formatOrder: function(n) {
+//       return n;
+//     }
+//   };
 
 const equalObj = (obj_a, obj_b) => {
   if (obj_a === obj_b) return true;
@@ -103,11 +149,11 @@ const get_hinanjyo = (cur_latlng, map) => {
             }
             last_routing = L.Routing.control({
               waypoints: [
-                  L.latLng(cur_latlng.lat, cur_latlng.lng),
-                  latlng
+                L.latLng(cur_latlng.lat, cur_latlng.lng),
+                latlng
               ],
               routeWhileDragging: true,
-              language: 'en'
+              language: 'ja'
           }).addTo(map);
         });  
       }
