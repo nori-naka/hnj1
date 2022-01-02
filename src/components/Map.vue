@@ -2,8 +2,8 @@
   <div class="map_layout">
     <div v-if="false" class="overlay"></div>
     <div id="map" />
-    <div class="off_disp" id="close_btn">
-      <img :src="img_close_btn" />
+    <div class="off_disp close_btn" id="close_btn">
+      <img class="img_close_btn" :src="img_close_btn" />
     </div>
   </div>
   <!-- <script src="./leaflet-routing-machine/dist/leaflet-routing-machine.js"></script> -->
@@ -12,15 +12,14 @@
 <script>
 import "leaflet/dist/leaflet.css"
 import L from "leaflet";
-import "./leaflet-routing-machine"
-import "./leaflet-routing-machine/dist/leaflet-routing-machine.css"
+import "leaflet-routing-machine"
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css"
 // import "./leaflet-routing-machine.min.js";
 import { wakeupLock } from "./wakeupLock";
 import { get_address, get_hinanjyo, distance } from "./jyohouban";
 // import { line_init } from "./LINE";
 // import { get_events, get_address, get_hinanjyo } from "./jyohouban";
 // import hw_json from "../assets/N06-20_HighwaySection.json";
-// require("./leaflet-routing-machine.min.js");
 
 
 export default {
@@ -169,20 +168,20 @@ export default {
 </script>
 
 <style>
-#close_btn {
+.close_btn {
   position: absolute;
+  display: none;
   top: 10px;
   right: 10px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background-color: #000;
+  background-color: gray;
   z-index: 100;
   padding: 0px;
 }
-.off_disp {
-  display: none;
-}
 .on_disp {
-  display: block;
+  display: flex;
 }
 .icon_style {
   border-radius: 50%;

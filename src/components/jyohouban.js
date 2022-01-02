@@ -118,7 +118,7 @@ const get_hinanjyo = (cur_latlng, map, close_btn) => {
                 latlng
               ],
               routeWhileDragging: true,
-              language: 'ja'
+              language: 'en'
             }).addTo(map);
             close_btn.classList.add("on_disp");
             close_btn.addEventListener("click", on_close_btn, false);
