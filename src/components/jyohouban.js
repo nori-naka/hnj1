@@ -10,7 +10,7 @@ import hj_json from "../assets/13.json";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import locale_ja from "./ja.js";
+// import locale_ja from "./ja.js";
 
 let DefaultIcon = L.icon({
   iconUrl: icon,
@@ -23,7 +23,7 @@ let DefaultIcon = L.icon({
   shadowSize: [41, 41]
 });
 L.Marker.prototype.options.icon = DefaultIcon;
-L.Routing.Localization.ja = locale_ja;
+// L.Routing.Localization.ja = locale_ja;
 
 
 const equalObj = (obj_a, obj_b) => {

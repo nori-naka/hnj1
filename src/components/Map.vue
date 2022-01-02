@@ -12,13 +12,14 @@
 <script>
 import "leaflet/dist/leaflet.css"
 import L from "leaflet";
-import "./leaflet-routing-machine"
+// import "./leaflet-routing-machine"
 import "./leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import { wakeupLock } from "./wakeupLock";
 import { get_address, get_hinanjyo, distance } from "./jyohouban";
 // import { line_init } from "./LINE";
 // import { get_events, get_address, get_hinanjyo } from "./jyohouban";
 // import hw_json from "../assets/N06-20_HighwaySection.json";
+require("./leaflet-routing-machine/dist/leaflet-routing-machine.js");
 
 
 export default {
