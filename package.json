@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@line/liff": "^2.18.1",
+    "browserify": "^17.0.0",
     "core-js": "^3.6.5",
     "leaflet": "^1.7.1",
     "leaflet-routing-machine": "^3.2.12",

@@ -2,13 +2,15 @@ import "leaflet/dist/leaflet.css"
 import L from "leaflet";
 import { GSI } from "./muni.js";
 import hj_json from "../assets/13.json";
-import 'leaflet-routing-machine';
-import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+// import 'leaflet-routing-machine';
+// import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+// import "./leaflet-routing-machine";
+// import "./leaflet-routing-machine/dist/leaflet-routing-machine.css";
 
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import locale_ja from "./ja.js";
+// import locale_ja from "./ja.js";
 
 let DefaultIcon = L.icon({
   iconUrl: icon,
@@ -21,53 +23,8 @@ let DefaultIcon = L.icon({
   shadowSize: [41, 41]
 });
 L.Marker.prototype.options.icon = DefaultIcon;
-L.Routing.Localization.ja = locale_ja;
+// L.Routing.Localization.ja = locale_ja;
 
-// L.Routing.Localization['ja'] =
-// // L.extend(L.Routing.Localization,
-// // { 
-//   {
-//     directions: {
-//       N: '北',
-//       NE: '北東',
-//       E: '東',
-//       SE: '南東',
-//       S: '南',
-//       SW: '南西',
-//       W: '西',
-//       NW: '北西'
-//     },
-//     instructions: {
-//       // instruction, postfix if the road is named
-//       'Head':
-//           ['{road} {dir}方向', ''],
-//       'Continue':
-//           ['{road} {dir}方向道なり', ''],
-//       'SlightRight':
-//           ['{road} 右方向', ''],
-//       'Right':
-//           ['{road} 右折',''],
-//       'SharpRight':
-//           ['{road} 右急カーブ', ''],
-//       'TurnAround':
-//           ['Uターン', ''],
-//       'SharpLeft':
-//           ['{road} 左急カーブ', ''],
-//       'Left':
-//           ['{road} 左折', ''],
-//       'SlightLeft':
-//           ['{road} 左方向', ''],
-//       'WaypointReached':
-//           ['分岐点到着'],
-//       'Roundabout':
-//           ['Take the {exitStr} exit in the roundabout', ' onto {road}'],
-//       'DestinationReached':
-//           ['目的地到着'],
-//     },
-//     formatOrder: function(n) {
-//       return n;
-//     }
-//   };
 
 const equalObj = (obj_a, obj_b) => {
   if (obj_a === obj_b) return true;
@@ -115,7 +72,7 @@ const distance = (latlng1, latlng2) => {
   return 6371 * Math.acos(Math.cos(lat1) * Math.cos(lat2) * Math.cos(lng2 - lng1) + Math.sin(lat1) * Math.sin(lat2));
 }
 
-let last_routing = null;
+let cur_routing = null;
 const get_hinanjyo = (cur_latlng, map, close_btn) => {
   L.geoJSON(hj_json, {
     pointToLayer: (pt, latlng) => {
@@ -143,26 +100,26 @@ const get_hinanjyo = (cur_latlng, map, close_btn) => {
             <h1>${pt.properties["指定緊急避難場所"]}</h1>
             <h3>${pt.properties["所在地"]}</h3>`)
           .on("click", () => {
-            if (last_routing) {
+            const on_close_btn = () => {
+              map.removeControl(cur_routing);
+              cur_routing = null;
+              close_btn.classList.remove("on_disp");
+              close_btn.removeEventListener("click", on_close_btn);
+            }
+            if (cur_routing) {
               on_close_btn();
-              // map.removeControl(last_routing);
-              // last_routing = null;
+              // map.removeControl(cur_routing);
+              // cur_routing = null;
               // close_btn.removeEventListener("click", on_close_btn);
             }
-            last_routing = L.Routing.control({
+            cur_routing = L.Routing.control({
               waypoints: [
                 L.latLng(cur_latlng.lat, cur_latlng.lng),
                 latlng
               ],
               routeWhileDragging: true,
-              language: 'en'
+              language: 'ja'
             }).addTo(map);
-            const on_close_btn = () => {
-              map.removeControl(last_routing);
-              last_routing = null;
-              close_btn.classList.remove("on_disp");              
-              close_btn.removeEventListener("click", on_close_btn);
-            }
             close_btn.classList.add("on_disp");
             close_btn.addEventListener("click", on_close_btn, false);
         });

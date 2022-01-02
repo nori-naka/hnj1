@@ -2,15 +2,18 @@
   <div class="map_layout">
     <div v-if="false" class="overlay"></div>
     <div id="map" />
-    <div id="close_btn">
+    <div class="off_disp" id="close_btn">
       <img :src="img_close_btn" />
     </div>
   </div>
+  <!-- <script src="./leaflet-routing-machine/dist/leaflet-routing-machine.js"></script> -->
 </template>
 
 <script>
 import "leaflet/dist/leaflet.css"
 import L from "leaflet";
+import "./leaflet-routing-machine"
+import "./leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import { wakeupLock } from "./wakeupLock";
 import { get_address, get_hinanjyo, distance } from "./jyohouban";
 // import { line_init } from "./LINE";
@@ -63,15 +66,6 @@ export default {
   //         weight: 6
   //       }
   //     },
-  //     // onEachFeature: (feature, layer) => {
-  //     //   console.log(feature);
-  //     //   console.log(layer);
-  //     //   layer.bindPopup(
-  //     //     `<h1>${feature.properties.N06_007}</h1>
-  //     //     <h3>${hw_type[feature.properties.N06_008]} / ${feature.properties.N06_010}車線</h3>`
-  //     //   );
-  //     // }
-  //   });
   //   this.map.addLayer(hw_layer);
   },
   methods: {
@@ -181,10 +175,12 @@ export default {
   background-color: #000;
   z-index: 100;
   padding: 0px;
-  /* display: none; */
+}
+.off_disp {
+  display: none;
 }
 .on_disp {
-  /* display: block; */
+  display: block;
 }
 .icon_style {
   border-radius: 50%;
