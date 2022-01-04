@@ -5,7 +5,7 @@ const line_init = (next) => {
   const profile = {}
 
   liff.init({
-    liffId: "1656696515-Arvm4l2V",
+    liffId: "1656778642-nDXxJaOx",
     withLoginOnExternalBrowser: true
   })
     .then(() => {
