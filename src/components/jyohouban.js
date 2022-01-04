@@ -1,7 +1,9 @@
 import "leaflet/dist/leaflet.css"
 import L from "leaflet";
 import { GSI } from "./muni.js";
-import hj_json from "../assets/13.json";
+// import hj_json from "../assets/13.json";
+// import hj_json from "../assets/11.json";
+
 // import 'leaflet-routing-machine';
 // import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 // import "./leaflet-routing-machine";
@@ -73,7 +75,7 @@ const distance = (latlng1, latlng2) => {
 }
 
 let cur_routing = null;
-const get_hinanjyo = (cur_latlng, map, close_btn) => {
+const get_hinanjyo = (cur_latlng, hj_json, map, close_btn) => {
   L.geoJSON(hj_json, {
     pointToLayer: (pt, latlng) => {
 
@@ -86,7 +88,7 @@ const get_hinanjyo = (cur_latlng, map, close_btn) => {
             html: `
               <div>
                 <img class="icon_style_bg" src="${require("../assets/避難所.png")}" />
-                <div class="icon_label">${pt.properties["指定緊急避難場所"]}</div>
+                <div class="icon_label">${pt.properties["指定緊急避難場所"] || pt.properties["指定緊急避"]}</div>
               </div>`,
             // iconUrl: require("../assets/避難所.png"),
             // className: "icon_style_bg",
@@ -97,7 +99,7 @@ const get_hinanjyo = (cur_latlng, map, close_btn) => {
           })
         })
           .bindPopup(`
-            <h1>${pt.properties["指定緊急避難場所"]}</h1>
+            <h1>${pt.properties["指定緊急避難場所"] || pt.properties["指定緊急避"]}</h1>
             <h3>${pt.properties["所在地"]}</h3>`)
           .on("click", () => {
             const on_close_btn = () => {
@@ -108,9 +110,6 @@ const get_hinanjyo = (cur_latlng, map, close_btn) => {
             }
             if (cur_routing) {
               on_close_btn();
-              // map.removeControl(cur_routing);
-              // cur_routing = null;
-              // close_btn.removeEventListener("click", on_close_btn);
             }
             cur_routing = L.Routing.control({
               waypoints: [

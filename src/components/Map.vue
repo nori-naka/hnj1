@@ -29,6 +29,8 @@ export default {
       map: null,
       coords: { lat: "", lng: "", time_stamp: 0 },
       last_coords: { lat: "", lng: "", time_stamp: 0 },
+      last_address: { ken: "", city: "", banchi: "" },
+      hj_json: {},
       profile: {},
       self_marker: null,
       img_close_btn: require("../assets/close05.png")
@@ -39,15 +41,6 @@ export default {
     wakeupLock();
     // 自位置取得
     navigator.geolocation.watchPosition(this.geo_success, this.geo_error);
-
-    // const hw_type = {
-    //   1:"高速自動車国道",
-    //   2:"高速自動車国道に並行する自動車専用道路",
-    //   3:"一般国道の自動車専用道路",
-    //   4:"本州四国連絡高速道路",
-    //   5:"指定都市高速道路",
-    //   6:"その他の道路"
-    // }
 
     this.map = L.map("map", {
       center: L.latLng( 35.6825, 139.752778), 
@@ -137,7 +130,8 @@ export default {
           .addTo(this.map)
           // .bindPopup(popup_content);
       }
-      if (this.last_coords.lat != this.coords.lat && this.last_coords.lng != this.coords.lng) {
+      // if (this.last_coords.lat != this.coords.lat && this.last_coords.lng != this.coords.lng) {
+      if (distance(this.coords, this.last_coords) > 0.01) {
         const cur_address = await get_address({ lat: this.coords.lat, lon: this.coords.lng });
         const popup_content = cur_address ? `<h1>現在の場所は<br>${cur_address.ken} ${cur_address.city} ${cur_address.banchi}付近です</h1>` :
                                             `<h1>現在の場所は、<br>緯度 ${latlng.lat}<br>経度 ${latlng.lng}</h1>`;
@@ -147,12 +141,24 @@ export default {
         } else {
           this.self_marker.bindPopup(popup_content);
         }
+
+        if (cur_address && cur_address.ken != this.last_address.ken) {
+          try {
+            const ken_code_json = require("../assets/ken_code.json");
+            this.hj_json = require(`../assets/${ken_code_json[cur_address.ken]}.json`)
+          } catch (err) {
+            console.log(err);
+          }
+          this.last_address = { ...cur_address };
+        }
+        // 避難所アプリ
+        get_hinanjyo(this.coords, this.hj_json, this.map, this.close_btn);
       }
 
-      // 避難所アプリ
-      if (distance(this.coords, this.last_coords) > 0.01) {
-        get_hinanjyo(this.coords, this.map, this.close_btn);
-      }
+      // // 避難所アプリ
+      // if (distance(this.coords, this.last_coords) > 0.01) {
+      //   get_hinanjyo(this.coords, this.map, this.close_btn);
+      // }
 
       // モバ情の場合
       // if (this.coords.time_stamp - this.last_coords.time_stamp > 10000) {
