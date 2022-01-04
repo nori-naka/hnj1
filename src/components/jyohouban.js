@@ -1,8 +1,6 @@
 import "leaflet/dist/leaflet.css"
 import L from "leaflet";
 import { GSI } from "./muni.js";
-// import hj_json from "../assets/13.json";
-// import hj_json from "../assets/11.json";
 
 // import 'leaflet-routing-machine';
 // import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
@@ -13,6 +11,9 @@ import icon from "leaflet/dist/images/marker-icon.png";
 import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 // import locale_ja from "./ja.js";
+
+const FROM_DISTANCE = 5; // 自分から避難所の距離（km）
+const HEROKU_URL = "https://lma1.herokuapp.com"
 
 let DefaultIcon = L.icon({
   iconUrl: icon,
@@ -74,21 +75,22 @@ const distance = (latlng1, latlng2) => {
   return 6371 * Math.acos(Math.cos(lat1) * Math.cos(lat2) * Math.cos(lng2 - lng1) + Math.sin(lat1) * Math.sin(lat2));
 }
 
+// 避難所
 let cur_routing = null;
 const get_hinanjyo = (cur_latlng, hj_json, map, close_btn) => {
   L.geoJSON(hj_json, {
     pointToLayer: (pt, latlng) => {
 
+      const pt_name = pt.properties["指定緊急避難場所"] || pt.properties["指定緊急避"];
       const from_dist = distance(cur_latlng, latlng);
-      if (from_dist < 5) {
+      if (from_dist < FROM_DISTANCE) {
         console.dir(pt);
-      // console.log(count++);
         return L.marker(latlng, {
           icon: L.divIcon({
             html: `
               <div>
                 <img class="icon_style_bg" src="${require("../assets/避難所.png")}" />
-                <div class="icon_label">${pt.properties["指定緊急避難場所"] || pt.properties["指定緊急避"]}</div>
+                <div class="icon_label">${pt_name}</div>
               </div>`,
             // iconUrl: require("../assets/避難所.png"),
             // className: "icon_style_bg",
@@ -99,18 +101,23 @@ const get_hinanjyo = (cur_latlng, hj_json, map, close_btn) => {
           })
         })
           .bindPopup(`
-            <h1>${pt.properties["指定緊急避難場所"] || pt.properties["指定緊急避"]}</h1>
-            <h3>${pt.properties["所在地"]}</h3>`)
+            <h1>${pt_name}</h1>
+            <h3>${pt.properties["所在地"]}</h3>
+            <hr>
+            <div id="info_${pt_name}"></div>
+          `)
           .on("click", () => {
-            const on_close_btn = () => {
+            const remove_cur_routing = () => {
               map.removeControl(cur_routing);
               cur_routing = null;
               close_btn.classList.remove("on_disp");
-              close_btn.removeEventListener("click", on_close_btn);
+              close_btn.onclick = null;
             }
+            // まず、cur_routingが残っていたなら、一旦消す
             if (cur_routing) {
-              on_close_btn();
+              remove_cur_routing();
             }
+            // で、初めてcur_routingを作ってaddTo(map)する
             cur_routing = L.Routing.control({
               waypoints: [
                 L.latLng(cur_latlng.lat, cur_latlng.lng),
@@ -118,10 +125,21 @@ const get_hinanjyo = (cur_latlng, hj_json, map, close_btn) => {
               ],
               routeWhileDragging: true,
               language: 'en'
-            }).addTo(map);
+            })
+              .on("routesfound", async ()=> {
+                const _api_url = `${HEROKU_URL}/info?name=${pt_name}`;
+                try {
+                  const res = await fetch(_api_url);
+                  const info = await res.json();
+                  document.getElementById(`info_${pt_name}`).innerText = JSON.parse(info).info;
+                } catch(err) {
+                  console.log(err);
+                }
+              })
+              .addTo(map);
             close_btn.classList.add("on_disp");
-            close_btn.addEventListener("click", on_close_btn, false);
-        });
+            close_btn.onclick = remove_cur_routing;
+          });
       }
     },
     // onEachFeature: (feature, layer) => {

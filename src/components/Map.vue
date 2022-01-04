@@ -17,7 +17,7 @@ import "leaflet-routing-machine/dist/leaflet-routing-machine.css"
 // import "./leaflet-routing-machine.min.js";
 import { wakeupLock } from "./wakeupLock";
 import { get_address, get_hinanjyo, distance } from "./jyohouban";
-// import { line_init } from "./LINE";
+import { line_init } from "./LINE";
 // import { get_events, get_address, get_hinanjyo } from "./jyohouban";
 // import hw_json from "../assets/N06-20_HighwaySection.json";
 
@@ -42,14 +42,43 @@ export default {
     // 自位置取得
     navigator.geolocation.watchPosition(this.geo_success, this.geo_error);
 
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution: '© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+      opacity: 0.5
+    });
+    const kokudoLayer = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg',{
+      attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
+      opacity: 0.5
+    });
+    const baseMap = {
+      "OpenStreetMap": osmLayer,
+      "国土地理院オルソ": kokudoLayer,
+    };
+
+    const kouzuiMap = L.tileLayer('https://disaportaldata.gsi.go.jp/raster/01_flood_l2_shinsuishin_data/{z}/{x}/{y}.png',{
+      attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
+    });
+    const takashioMap = L.tileLayer('https://disaportaldata.gsi.go.jp/raster/03_hightide_l2_shinsuishin_data/{z}/{x}/{y}.png',{
+      attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
+    });
+    const overLayer = {
+      "洪水浸水想定区域": kouzuiMap,
+      "高潮浸水想定区域": takashioMap
+    }
+
     this.map = L.map("map", {
       center: L.latLng( 35.6825, 139.752778), 
       zoom: 15
-    }).addLayer(
-      L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        opacity: 0.5
-      })
-    );
+    }).addLayer(osmLayer);
+    L.control.layers(baseMap, overLayer, {
+      position: "bottomright"
+    }).addTo(this.map)
+    
+    // addLayer(
+    //   L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    //     opacity: 0.5
+    //   })
+    // );
     this.close_btn = document.getElementById("close_btn");
 
   //   const hw_layer = L.geoJSON(hw_json, {
@@ -97,20 +126,20 @@ export default {
       if (this.first_flag) {
         this.map.panTo(latlng, {animate: true});
 
-        // line_init(p => {
-        //   this.profile = p;
-        //   console.log("----------PROFILE-----------")
-        //   console.log(this.profile);
-        //   if (this.self_marker && this.profile.pictureUrl) {
-        //     this.self_marker.setIcon(L.icon({
-        //       className: "icon_style",
-        //       iconUrl: this.profile.pictureUrl,
-        //       iconSize: [40, 40],
-        //       iconAnchor: [20, 20],
-        //       popupAnchor: [0, -20]
-        //     }));
-        //   }
-        // });
+        line_init(p => {
+          this.profile = p;
+          console.log("----------PROFILE-----------")
+          console.log(this.profile);
+          if (this.self_marker && this.profile.pictureUrl) {
+            this.self_marker.setIcon(L.icon({
+              className: "icon_style",
+              iconUrl: this.profile.pictureUrl,
+              iconSize: [40, 40],
+              iconAnchor: [20, 20],
+              popupAnchor: [0, -20]
+            }));
+          }
+        });
         this.first_flag = false;
       }
 
@@ -154,11 +183,6 @@ export default {
         // 避難所アプリ
         get_hinanjyo(this.coords, this.hj_json, this.map, this.close_btn);
       }
-
-      // // 避難所アプリ
-      // if (distance(this.coords, this.last_coords) > 0.01) {
-      //   get_hinanjyo(this.coords, this.map, this.close_btn);
-      // }
 
       // モバ情の場合
       // if (this.coords.time_stamp - this.last_coords.time_stamp > 10000) {
@@ -211,6 +235,7 @@ export default {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  text-align: center;
 }
 .map_layout {
   position: relative;
