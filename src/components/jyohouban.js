@@ -77,7 +77,7 @@ const distance = (latlng1, latlng2) => {
 
 // 避難所
 let cur_routing = null;
-const get_hinanjyo = (cur_latlng, hj_json, map, close_btn) => {
+const get_hinanjyo = (cur_latlng, hj_json, map, ev) => {
   L.geoJSON(hj_json, {
     pointToLayer: (pt, latlng) => {
 
@@ -108,14 +108,19 @@ const get_hinanjyo = (cur_latlng, hj_json, map, close_btn) => {
           `)
           .on("click", () => {
             const remove_cur_routing = () => {
-              map.removeControl(cur_routing);
-              cur_routing = null;
-              close_btn.classList.remove("on_disp");
-              close_btn.onclick = null;
+              if (cur_routing._container.classList.contains("leaflet-routing-container-hide")) {
+                ev.value = "right";
+                cur_routing.show();
+              } else {
+                ev.value = "left";
+                cur_routing.hide();
+              }
             }
             // まず、cur_routingが残っていたなら、一旦消す
             if (cur_routing) {
-              remove_cur_routing();
+              map.removeControl(cur_routing);
+              cur_routing = null;
+              ev.value = null;
             }
             // で、初めてcur_routingを作ってaddTo(map)する
             cur_routing = L.Routing.control({
@@ -124,8 +129,11 @@ const get_hinanjyo = (cur_latlng, hj_json, map, close_btn) => {
                 latlng
               ],
               routeWhileDragging: true,
-              language: 'en'
+              language: 'en',
+              collapsible: true,
+              collapseBtnClass: "collapsible_btn"
             })
+              // 避難所の詳細情報の取得
               .on("routesfound", async ()=> {
                 const _api_url = `${HEROKU_URL}/info?name=${pt_name}`;
                 try {
@@ -137,8 +145,8 @@ const get_hinanjyo = (cur_latlng, hj_json, map, close_btn) => {
                 }
               })
               .addTo(map);
-            close_btn.classList.add("on_disp");
-            close_btn.onclick = remove_cur_routing;
+            ev.value = "right";
+            ev.fn = remove_cur_routing;
           });
       }
     },

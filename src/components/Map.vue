@@ -2,8 +2,8 @@
   <div class="map_layout">
     <div v-if="false" class="overlay"></div>
     <div id="map" />
-    <div class="off_disp close_btn" id="close_btn">
-      <img class="img_close_btn" :src="img_close_btn" />
+    <div v-show="ev.value" @click="ev.fn" class="close_btn" id="close_btn">
+      <img class="arrow_btn" :src="arrow_btn_obj" />
     </div>
   </div>
   <!-- <script src="./leaflet-routing-machine/dist/leaflet-routing-machine.js"></script> -->
@@ -33,7 +33,10 @@ export default {
       hj_json: {},
       profile: {},
       self_marker: null,
-      img_close_btn: require("../assets/close05.png")
+      img_close_btn: require("../assets/close05.png"),
+      img_arrow_right: require("../assets/arrow_right.png"),
+      img_arrow_left: require("../assets/arrow_left.png"),
+      ev: { value: null, fn: () => {} }
     }
   },
   async mounted() {
@@ -90,6 +93,15 @@ export default {
   //       }
   //     },
   //   this.map.addLayer(hw_layer);
+  },
+  computed: {
+    arrow_btn_obj() {
+      if (this.ev.value == "right") {
+        return this.img_arrow_right;
+      } else {
+        return this.img_arrow_left;
+      }
+    }
   },
   methods: {
     // 住所（文字列）をMessageAPIで送信して、その後、喋る
@@ -181,7 +193,7 @@ export default {
           this.last_address = { ...cur_address };
         }
         // 避難所アプリ
-        get_hinanjyo(this.coords, this.hj_json, this.map, this.close_btn);
+        get_hinanjyo(this.coords, this.hj_json, this.map, this.ev);
       }
 
       // モバ情の場合
@@ -198,9 +210,18 @@ export default {
 </script>
 
 <style>
+.arrow_btn {
+  width: 50%;
+  height: 50%;
+}
+.collapsible_btn {
+  display: none;
+}
 .close_btn {
   position: absolute;
-  display: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   top: 10px;
   right: 10px;
   width: 50px;
@@ -210,9 +231,9 @@ export default {
   z-index: 100;
   padding: 0px;
 }
-.on_disp {
+/* .on_disp {
   display: flex;
-}
+} */
 .icon_style {
   border-radius: 50%;
   border-color: #549fa9;
