@@ -1,13 +1,12 @@
 <template>
   <div>
-    <div v-show="!page_singin" class="map_layout">
-      <div v-if="false" class="overlay"></div>
+    <div v-if="!page_singin" class="map_layout">
       <div id="map" />
-      <div v-show="ev.value" @click="ev.fn" class="close_btn" id="close_btn">
+      <div v-show="ev.value" @click="ev.fn" class="close_btn">
         <img class="arrow_btn" :src="arrow_btn_obj" />
       </div>
     </div>
-    <SignIn v-show="page_singin"></SignIn>
+    <SignIn v-if="page_singin"></SignIn>
   </div>
   <!-- <script src="./leaflet-routing-machine/dist/leaflet-routing-machine.js"></script> -->
 </template>
@@ -92,7 +91,6 @@ export default {
       //     opacity: 0.5
       //   })
       // );
-      this.close_btn = document.getElementById("close_btn");
 
     //   const hw_layer = L.geoJSON(hw_json, {
     //     style: () => {
