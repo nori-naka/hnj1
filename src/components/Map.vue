@@ -1,10 +1,13 @@
 <template>
-  <div class="map_layout">
-    <div v-if="false" class="overlay"></div>
-    <div id="map" />
-    <div v-show="ev.value" @click="ev.fn" class="close_btn" id="close_btn">
-      <img class="arrow_btn" :src="arrow_btn_obj" />
+  <div>
+    <div v-show="!page_singin" class="map_layout">
+      <div v-if="false" class="overlay"></div>
+      <div id="map" />
+      <div v-show="ev.value" @click="ev.fn" class="close_btn" id="close_btn">
+        <img class="arrow_btn" :src="arrow_btn_obj" />
+      </div>
     </div>
+    <SignIn v-show="page_singin"></SignIn>
   </div>
   <!-- <script src="./leaflet-routing-machine/dist/leaflet-routing-machine.js"></script> -->
 </template>
@@ -21,8 +24,12 @@ import { line_init } from "./LINE";
 // import { get_events, get_address, get_hinanjyo } from "./jyohouban";
 // import hw_json from "../assets/N06-20_HighwaySection.json";
 
+import SignIn from "../components/SignIn.vue";
 
 export default {
+  components: {
+    SignIn: SignIn
+  },
   data() {
     return {
       first_flag: true,
@@ -36,10 +43,14 @@ export default {
       img_close_btn: require("../assets/close05.png"),
       img_arrow_right: require("../assets/arrow_right.png"),
       img_arrow_left: require("../assets/arrow_left.png"),
-      ev: { value: null, fn: () => {} }
+      ev: { value: null, fn: () => {} },
+      page: "map"
     }
   },
   async mounted() {
+    const urlParams = new URLSearchParams(window.location.search);
+    this.page = urlParams.get("page");
+
     // 眠気覚まし
     wakeupLock();
     // 自位置取得
@@ -101,6 +112,9 @@ export default {
       } else {
         return this.img_arrow_left;
       }
+    },
+    page_singin () {
+      return this.page == "signin";
     }
   },
   methods: {
