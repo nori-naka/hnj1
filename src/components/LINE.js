@@ -45,7 +45,11 @@ const line_init = (next) => {
     })
     .catch(err => {
       console.log(err.message);
-    });
+    });  
 }
 
-export { line_init };
+const line_close = () => {
+  liff.closeWindow();
+}
+
+export { line_init, line_close };

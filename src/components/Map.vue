@@ -6,7 +6,7 @@
         <img class="arrow_btn" :src="arrow_btn_obj" />
       </div>
     </div>
-    <SignIn v-if="page_singin"></SignIn>
+    <SignIn v-if="page_singin" :profile="profile"></SignIn>
   </div>
   <!-- <script src="./leaflet-routing-machine/dist/leaflet-routing-machine.js"></script> -->
 </template>
@@ -50,6 +50,15 @@ export default {
     const urlParams = new URLSearchParams(window.location.search);
     this.page = urlParams.get("page");
 
+    line_init(p => {
+      this.profile = p;
+      console.log("----------PROFILE-----------")
+      console.log(this.profile);
+    });
+
+    // 眠気覚まし
+    wakeupLock();
+
     if (this.page != "signin") {
       // 自位置取得
       navigator.geolocation.watchPosition(this.geo_success, this.geo_error);
@@ -64,7 +73,7 @@ export default {
       });
       const baseMap = {
         "OpenStreetMap": osmLayer,
-        "国土地理院オルソ": kokudoLayer,
+        "航空写真": kokudoLayer,
       };
 
       const kouzuiMap = L.tileLayer('https://disaportaldata.gsi.go.jp/raster/01_flood_l2_shinsuishin_data/{z}/{x}/{y}.png',{
@@ -102,8 +111,6 @@ export default {
     //     },
     //   this.map.addLayer(hw_layer);
     } 
-    // 眠気覚まし
-    wakeupLock();
   },
   computed: {
     arrow_btn_obj() {
@@ -152,20 +159,15 @@ export default {
       if (this.first_flag) {
         this.map.panTo(latlng, {animate: true});
 
-        line_init(p => {
-          this.profile = p;
-          console.log("----------PROFILE-----------")
-          console.log(this.profile);
-          if (this.self_marker && this.profile.pictureUrl) {
-            this.self_marker.setIcon(L.icon({
-              className: "icon_style",
-              iconUrl: this.profile.pictureUrl,
-              iconSize: [40, 40],
-              iconAnchor: [20, 20],
-              popupAnchor: [0, -20]
-            }));
-          }
-        });
+        if (this.self_marker && this.profile.pictureUrl) {
+          this.self_marker.setIcon(L.icon({
+            className: "icon_style",
+            iconUrl: this.profile.pictureUrl,
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20]
+          }));
+        }
         this.first_flag = false;
       }
 
