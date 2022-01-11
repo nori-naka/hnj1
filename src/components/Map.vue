@@ -176,7 +176,7 @@ export default {
         this.self_marker = L.marker(latlng, {
           icon: L.icon({
             className: "icon_style",
-            iconUrl: require("@/assets/people_marker.png"),
+            iconUrl: this.profile.pictureUrl ? this.profile.pictureUrl : require("@/assets/people_marker.png"),
             iconSize: [40, 40],
             iconAnchor: [20, 20],
             popupAnchor: [0, -20]
