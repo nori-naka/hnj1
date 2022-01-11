@@ -13,6 +13,10 @@ const line_init = (next) => {
       }
     })
     .then(() => {
+      const profile = liff.getProfile();
+      return profile;
+    })
+    .then(profile => {
       console.log(liff.getLanguage());
       console.log(liff.getVersion());
       console.log(liff.isInClient());
@@ -21,7 +25,6 @@ const line_init = (next) => {
       console.log(liff.getLineVersion());
       console.log(liff.getProfile());
   
-      const profile = liff.getProfile();
       profile.lang = liff.getLanguage();
       profile.version = liff.getVersion();
       profile.inInClient = liff.isInClient();
