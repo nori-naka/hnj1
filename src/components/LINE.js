@@ -19,15 +19,16 @@ const line_init = (next) => {
       console.log(liff.isLoggedIn());
       console.log(liff.getOS());
       console.log(liff.getLineVersion());
+      console.log(liff.getProfile());
   
-      const profile = {}
+      const profile = liff.getProfile();
       profile.lang = liff.getLanguage();
       profile.version = liff.getVersion();
       profile.inInClient = liff.isInClient();
       profile.isLoggedIn = liff.isLoggedIn();
       profile.os = liff.getOS();
       profile.lineVersion = liff.getLineVersion();
-        
+
       if (next) next(profile);
 
       return liff.ready;
