@@ -16,7 +16,6 @@ import "leaflet/dist/leaflet.css"
 import L from "leaflet";
 import "leaflet-routing-machine"
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css"
-// import "./leaflet-routing-machine.min.js";
 import { wakeupLock } from "./wakeupLock";
 import { get_address, get_hinanjyo, distance } from "./jyohouban";
 import { line_init } from "./LINE";
@@ -50,17 +49,51 @@ export default {
     const urlParams = new URLSearchParams(window.location.search);
     this.page = urlParams.get("page");
 
-    line_init(p => {
+    // 眠気覚まし
+    wakeupLock();
+
+    await line_init(p => {
       this.profile = p;
       console.log("----------PROFILE-----------")
       console.log(this.profile);
     });
+    this.init_map();
+  },
+  computed: {
+    arrow_btn_obj() {
+      if (this.ev.value == "right") {
+        return this.img_arrow_right;
+      } else {
+        return this.img_arrow_left;
+      }
+    },
+    page_singin () {
+      return this.page == "signin";
+    }
+  },
+  methods: {
+    // 住所（文字列）をMessageAPIで送信して、その後、喋る
+    // async speech() {
+    //   // const uttr = new SpeechSynthesisUtterance(this.talk);
+    //   // uttr.lang = "ja-JP";
+    //   // speechSynthesis.speak(uttr);
 
-    // 眠気覚まし
-    wakeupLock();
+    //   try {
+    //     await this.get_talk();
+    //     console.log(this.talk);
+    //     await liff.sendMessages([
+    //       { 
+    //         type: "text",
+    //         text: this.talk,
+    //       }
+    //     ])
+    //     console.log("sendMessage");
+    //   } catch (err) {()=> console.log(err.message);}
 
-    if (this.page != "signin") {
-      // 自位置取得
+    //   this.sound_on(this.audio_src);
+    //   this.self_marker.openPopup();
+    // },
+    init_map() {
       navigator.geolocation.watchPosition(this.geo_success, this.geo_error);
 
       const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
@@ -100,52 +133,17 @@ export default {
       //     opacity: 0.5
       //   })
       // );
-
-    //   const hw_layer = L.geoJSON(hw_json, {
-    //     style: () => {
-    //       // console.dir(feature);
-    //       return { 
-    //         color: "gray",
-    //         weight: 6
-    //       }
-    //     },
-    //   this.map.addLayer(hw_layer);
-    } 
-  },
-  computed: {
-    arrow_btn_obj() {
-      if (this.ev.value == "right") {
-        return this.img_arrow_right;
-      } else {
-        return this.img_arrow_left;
-      }
+      // const hw_layer = L.geoJSON(hw_json, {
+      //   style: () => {
+      //     // console.dir(feature);
+      //     return { 
+      //       color: "gray",
+      //       weight: 6
+      //     }
+      //   },
+      // });
+      // this.map.addLayer(hw_layer);
     },
-    page_singin () {
-      return this.page == "signin";
-    }
-  },
-  methods: {
-    // 住所（文字列）をMessageAPIで送信して、その後、喋る
-    // async speech() {
-    //   // const uttr = new SpeechSynthesisUtterance(this.talk);
-    //   // uttr.lang = "ja-JP";
-    //   // speechSynthesis.speak(uttr);
-
-    //   try {
-    //     await this.get_talk();
-    //     console.log(this.talk);
-    //     await liff.sendMessages([
-    //       { 
-    //         type: "text",
-    //         text: this.talk,
-    //       }
-    //     ])
-    //     console.log("sendMessage");
-    //   } catch (err) {()=> console.log(err.message);}
-
-    //   this.sound_on(this.audio_src);
-    //   this.self_marker.openPopup();
-    // },
     async geo_success(pos) {
       this.coords = {
         lat: Math.round(pos.coords.latitude * 1000000) / 1000000,
@@ -159,15 +157,15 @@ export default {
       if (this.first_flag) {
         this.map.panTo(latlng, {animate: true});
 
-        if (this.self_marker && this.profile.pictureUrl) {
-          this.self_marker.setIcon(L.icon({
-            className: "icon_style",
-            iconUrl: this.profile.pictureUrl,
-            iconSize: [40, 40],
-            iconAnchor: [20, 20],
-            popupAnchor: [0, -20]
-          }));
-        }
+        // if (this.self_marker && this.profile.pictureUrl) {
+        //   this.self_marker.setIcon(L.icon({
+        //     className: "icon_style",
+        //     iconUrl: this.profile.pictureUrl,
+        //     iconSize: [40, 40],
+        //     iconAnchor: [20, 20],
+        //     popupAnchor: [0, -20]
+        //   }));
+        // }
         this.first_flag = false;
       }
 
