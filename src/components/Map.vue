@@ -16,6 +16,8 @@ import "leaflet/dist/leaflet.css"
 import L from "leaflet";
 import "leaflet-routing-machine"
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css"
+import pointInPolygon from "point-in-polygon";
+
 import { wakeupLock } from "./wakeupLock";
 import { get_address, get_hinanjyo, distance } from "./jyohouban";
 import { line_init } from "./LINE";
@@ -23,6 +25,11 @@ import { line_init } from "./LINE";
 // import hw_json from "../assets/N06-20_HighwaySection.json";
 
 import SignIn from "../components/SignIn.vue";
+
+const GEO_URL = "https://lma1.herokuapp.com/geojson";
+const TEST_URL = "https://lma1.herokuapp.com/test";
+// const GEO_URL = "http://localhost:3000/geojson";
+// const TEST_URL = "http://localhost:3000/test";
 
 export default {
   components: {
@@ -42,7 +49,9 @@ export default {
       img_arrow_right: require("../assets/arrow_right.png"),
       img_arrow_left: require("../assets/arrow_left.png"),
       ev: { value: null, fn: () => {} },
-      page: "map"
+      page: "map",
+      clearId: {},
+      regist_area_layers: {}
     }
   },
   async mounted() {
@@ -135,23 +144,121 @@ export default {
       }).addLayer(osmLayer);
       L.control.layers(baseMap, overLayer, {
         position: "bottomright"
-      }).addTo(this.map)
+      }).addTo(this.map);
+
+      this.regist_area();
+      this.clearId["regist_area"] = setInterval(this.regist_area, 1000);
+
+      this.checkedIn();
+      this.clearId["checkedIn"] = setInterval(this.checkedIn, 1000);
       
       // addLayer(
       //   L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
       //     opacity: 0.5
       //   })
       // );
-      // const hw_layer = L.geoJSON(hw_json, {
-      //   style: () => {
-      //     // console.dir(feature);
-      //     return { 
-      //       color: "gray",
-      //       weight: 6
-      //     }
-      //   },
-      // });
-      // this.map.addLayer(hw_layer);
+
+    //   const hw_layer = L.geoJSON(hw_json, {
+    //     style: () => {
+    //       // console.dir(feature);
+    //       return { 
+    //         color: "gray",
+    //         weight: 6
+    //       }
+    //     },
+    //   this.map.addLayer(hw_layer);
+    } 
+  },
+  computed: {
+    arrow_btn_obj() {
+      if (this.ev.value == "right") {
+        return this.img_arrow_right;
+      } else {
+        return this.img_arrow_left;
+      }
+    },
+    page_singin () {
+      return this.page == "signin";
+    }
+  },
+  methods: {
+    // 住所（文字列）をMessageAPIで送信して、その後、喋る
+    // async speech() {
+    //   // const uttr = new SpeechSynthesisUtterance(this.talk);
+    //   // uttr.lang = "ja-JP";
+    //   // speechSynthesis.speak(uttr);
+
+    //   try {
+    //     await this.get_talk();
+    //     console.log(this.talk);
+    //     await liff.sendMessages([
+    //       { 
+    //         type: "text",
+    //         text: this.talk,
+    //       }
+    //     ])
+    //     console.log("sendMessage");
+    //   } catch (err) {()=> console.log(err.message);}
+
+    //   this.sound_on(this.audio_src);
+    //   this.self_marker.openPopup();
+    // },
+    checkedIn() {
+      if (this.coords.lat == "" || this.coords.lng == "") return;
+
+      Object.keys(this.regist_area_layers).forEach( async id => {
+        const [ latlngs ] = this.regist_area_layers[id].getLatLngs();
+        const arr_points = latlngs.map(latlng => { return [latlng.lat, latlng.lng] });
+        const area_in = pointInPolygon([this.coords.lat, this.coords.lng], arr_points);
+        if (area_in) {
+          console.log("エリアの中にいます。");
+          await fetch(TEST_URL);
+        } else {
+          console.log("残念。外です。");
+        }
+      })
+    },
+    async regist_area() {
+      const res = await fetch(GEO_URL);
+      const geo_json = await res.json();
+      const regist_ids = Object.keys(this.regist_area_layers);
+
+      L.geoJSON(geo_json, {
+        // filter: feature => {
+        //   feature.properties.id
+        // },
+        onEachFeature: (feature, layer) => {
+          const new_id = feature.properties.id;
+
+          // 既に登録済みのエリアの場合
+          if (regist_ids.includes(new_id)) {
+            // messageを更新
+            this.regist_area_layers[new_id].getPopup().setContent(feature.properties.message);
+            regist_ids.splice(regist_ids.indexOf(new_id), 1);
+
+          // 登録が無い場合
+          } else {
+            this.regist_area_layers[new_id] = layer;
+            layer.bindPopup(feature.properties.message);
+            this.map.addLayer(layer);
+          }
+        },
+        style: () => {
+          return {
+            color: "red",
+            opacity: 0.1
+          };
+        }
+      });
+
+      regist_ids.forEach(id => {
+        this.map.removeLayer(this.regist_area_layers[id]);
+        delete this.regist_area_layers[id];
+      })
+
+      // }).bindPopup( layer => {
+      //   return layer.feature.properties.message;
+      // }).addTo(this.map);
     },
     async geo_success(pos) {
       this.coords = {
@@ -228,6 +335,11 @@ export default {
     geo_error(error) {
       console.log(`GEO_ERROR: ${error.message}`);
     }
+  },
+  beforeDestroy() {
+    Object.keys(this.clearId).forEach(id => {
+      clearInterval(this.clearId[id]);
+    })
   }
 }
 </script>
