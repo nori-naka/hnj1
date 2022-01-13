@@ -27,7 +27,7 @@ import { line_init, line_sendMsg } from "./LINE";
 import SignIn from "../components/SignIn.vue";
 
 const GEO_URL = "https://lma1.herokuapp.com/geojson";
-const TEST_URL = "https://lma1.herokuapp.com/test";
+// const TEST_URL = "https://lma1.herokuapp.com/test";
 // const GEO_URL = "http://localhost:3000/geojson";
 // const TEST_URL = "http://localhost:3000/test";
 
