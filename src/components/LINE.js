@@ -46,10 +46,12 @@ const line_close = () => {
 }
 
 const line_sendMsg = msg => {
-  liff.sendMessages({
-    type: "text", 
-    text: msg
-  })
+  liff.sendMessages([
+    {
+      type: "text", 
+      text: msg
+    }
+  ])
   .catch(err => { console.log(err) });
 }
 
