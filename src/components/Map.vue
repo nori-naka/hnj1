@@ -122,6 +122,10 @@ export default {
           const area_in = pointInPolygon([this.coords.lat, this.coords.lng], arr_points);
           if (area_in) {
             console.log("エリアの中にいます。");
+            console.log(this.last_msg_id);
+            console.log(this.regist_area_layers);
+            console.log(this.regist_area_layers[id].msg_id);
+
             // await fetch(TEST_URL);
             if (this.last_msg_id != this.regist_area_layers[id].msg_id) {
               line_sendMsg(id);
