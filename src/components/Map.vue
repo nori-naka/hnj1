@@ -20,7 +20,7 @@ import pointInPolygon from "point-in-polygon";
 
 import { wakeupLock } from "./wakeupLock";
 import { get_address, get_hinanjyo, distance } from "./jyohouban";
-import { line_init } from "./LINE";
+import { line_init, line_sendMsg } from "./LINE";
 // import { get_events, get_address, get_hinanjyo } from "./jyohouban";
 // import hw_json from "../assets/N06-20_HighwaySection.json";
 
@@ -120,7 +120,8 @@ export default {
         const area_in = pointInPolygon([this.coords.lat, this.coords.lng], arr_points);
         if (area_in) {
           console.log("エリアの中にいます。");
-          await fetch(TEST_URL);
+          // await fetch(TEST_URL);
+          line_sendMsg(id)
         } else {
           console.log("残念。外です。");
         }

@@ -45,4 +45,12 @@ const line_close = () => {
   liff.closeWindow();
 }
 
-export { line_init, line_close };
+const line_sendMsg = msg => {
+  liff.sendMessages({
+    type: "text", 
+    text: msg
+  })
+  .catch(err => { console.log(err) });
+}
+
+export { line_init, line_close, line_sendMsg };
