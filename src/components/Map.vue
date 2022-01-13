@@ -111,98 +111,6 @@ export default {
     //   this.sound_on(this.audio_src);
     //   this.self_marker.openPopup();
     // },
-    init_map() {
-      navigator.geolocation.watchPosition(this.geo_success, this.geo_error);
-
-      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-        attribution: '© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
-        opacity: 0.5
-      });
-      const kokudoLayer = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg',{
-        attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
-        opacity: 0.5
-      });
-      const baseMap = {
-        "OpenStreetMap": osmLayer,
-        "航空写真": kokudoLayer,
-      };
-
-      const kouzuiMap = L.tileLayer('https://disaportaldata.gsi.go.jp/raster/01_flood_l2_shinsuishin_data/{z}/{x}/{y}.png',{
-        attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
-      });
-      const takashioMap = L.tileLayer('https://disaportaldata.gsi.go.jp/raster/03_hightide_l2_shinsuishin_data/{z}/{x}/{y}.png',{
-        attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
-      });
-      const overLayer = {
-        "洪水浸水想定区域": kouzuiMap,
-        "高潮浸水想定区域": takashioMap
-      }
-
-      this.map = L.map("map", {
-        center: L.latLng( 35.6825, 139.752778), 
-        zoom: 15
-      }).addLayer(osmLayer);
-      L.control.layers(baseMap, overLayer, {
-        position: "bottomright"
-      }).addTo(this.map);
-
-      this.regist_area();
-      this.clearId["regist_area"] = setInterval(this.regist_area, 1000);
-
-      this.checkedIn();
-      this.clearId["checkedIn"] = setInterval(this.checkedIn, 1000);
-      
-      // addLayer(
-      //   L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      //     opacity: 0.5
-      //   })
-      // );
-
-    //   const hw_layer = L.geoJSON(hw_json, {
-    //     style: () => {
-    //       // console.dir(feature);
-    //       return { 
-    //         color: "gray",
-    //         weight: 6
-    //       }
-    //     },
-    //   this.map.addLayer(hw_layer);
-    } 
-  },
-  computed: {
-    arrow_btn_obj() {
-      if (this.ev.value == "right") {
-        return this.img_arrow_right;
-      } else {
-        return this.img_arrow_left;
-      }
-    },
-    page_singin () {
-      return this.page == "signin";
-    }
-  },
-  methods: {
-    // 住所（文字列）をMessageAPIで送信して、その後、喋る
-    // async speech() {
-    //   // const uttr = new SpeechSynthesisUtterance(this.talk);
-    //   // uttr.lang = "ja-JP";
-    //   // speechSynthesis.speak(uttr);
-
-    //   try {
-    //     await this.get_talk();
-    //     console.log(this.talk);
-    //     await liff.sendMessages([
-    //       { 
-    //         type: "text",
-    //         text: this.talk,
-    //       }
-    //     ])
-    //     console.log("sendMessage");
-    //   } catch (err) {()=> console.log(err.message);}
-
-    //   this.sound_on(this.audio_src);
-    //   this.self_marker.openPopup();
-    // },
     checkedIn() {
       if (this.coords.lat == "" || this.coords.lng == "") return;
 
@@ -254,11 +162,48 @@ export default {
       regist_ids.forEach(id => {
         this.map.removeLayer(this.regist_area_layers[id]);
         delete this.regist_area_layers[id];
-      })
+      });
+    },
+    init_map() {
+      navigator.geolocation.watchPosition(this.geo_success, this.geo_error);
 
-      // }).bindPopup( layer => {
-      //   return layer.feature.properties.message;
-      // }).addTo(this.map);
+      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        attribution: '© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+        opacity: 0.5
+      });
+      const kokudoLayer = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg',{
+        attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
+        opacity: 0.5
+      });
+      const baseMap = {
+        "OpenStreetMap": osmLayer,
+        "航空写真": kokudoLayer,
+      };
+
+      const kouzuiMap = L.tileLayer('https://disaportaldata.gsi.go.jp/raster/01_flood_l2_shinsuishin_data/{z}/{x}/{y}.png',{
+        attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
+      });
+      const takashioMap = L.tileLayer('https://disaportaldata.gsi.go.jp/raster/03_hightide_l2_shinsuishin_data/{z}/{x}/{y}.png',{
+        attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>',
+      });
+      const overLayer = {
+        "洪水浸水想定区域": kouzuiMap,
+        "高潮浸水想定区域": takashioMap
+      }
+
+      this.map = L.map("map", {
+        center: L.latLng( 35.6825, 139.752778), 
+        zoom: 15
+      }).addLayer(osmLayer);
+      L.control.layers(baseMap, overLayer, {
+        position: "bottomright"
+      }).addTo(this.map);
+
+      this.regist_area();
+      this.clearId["regist_area"] = setInterval(this.regist_area, 1000);
+
+      this.checkedIn();
+      this.clearId["checkedIn"] = setInterval(this.checkedIn, 1000);
     },
     async geo_success(pos) {
       this.coords = {
