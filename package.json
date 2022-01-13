@@ -13,6 +13,7 @@
     "core-js": "^3.6.5",
     "leaflet": "^1.7.1",
     "leaflet-routing-machine": "^3.2.12",
+    "point-in-polygon": "^1.1.0",
     "vue": "^2.6.11"
   },
   "devDependencies": {
