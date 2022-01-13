@@ -175,10 +175,8 @@ export default {
       });
 
       regist_ids.forEach(id => {
-        if (this.regist_area_layers[id].layer) {
-          this.map.removeLayer(this.regist_area_layers[id].layer);
-          delete this.regist_area_layers[id].layer;
-        }
+        this.map.removeLayer(this.regist_area_layers[id].layer);
+        delete this.regist_area_layers[id];
       });
     },
     init_map() {
