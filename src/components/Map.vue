@@ -51,7 +51,8 @@ export default {
       ev: { value: null, fn: () => {} },
       page: "map",
       clearId: {},
-      regist_area_layers: {}
+      regist_area_layers: {},
+      last_msg_id: null
     }
   },
   async mounted() {
@@ -115,15 +116,20 @@ export default {
       if (this.coords.lat == "" || this.coords.lng == "") return;
 
       Object.keys(this.regist_area_layers).forEach( async id => {
-        const [ latlngs ] = this.regist_area_layers[id].getLatLngs();
-        const arr_points = latlngs.map(latlng => { return [latlng.lat, latlng.lng] });
-        const area_in = pointInPolygon([this.coords.lat, this.coords.lng], arr_points);
-        if (area_in) {
-          console.log("エリアの中にいます。");
-          // await fetch(TEST_URL);
-          line_sendMsg(id)
-        } else {
-          console.log("残念。外です。");
+        if (this.regist_area_layers[id].layer) {
+          const [ latlngs ] = this.regist_area_layers[id].layer.getLatLngs();
+          const arr_points = latlngs.map(latlng => { return [latlng.lat, latlng.lng] });
+          const area_in = pointInPolygon([this.coords.lat, this.coords.lng], arr_points);
+          if (area_in) {
+            console.log("エリアの中にいます。");
+            // await fetch(TEST_URL);
+            if (this.last_msg_id != this.regist_area_layers[id].msg_id) {
+              line_sendMsg(id);
+              this.last_msg_id = this.regist_area_layers[id].msg_id;
+            }
+          } else {
+            console.log("残念。外です。");
+          }
         }
       })
     },
@@ -142,12 +148,16 @@ export default {
           // 既に登録済みのエリアの場合
           if (regist_ids.includes(new_id)) {
             // messageを更新
-            this.regist_area_layers[new_id].getPopup().setContent(feature.properties.message);
-            regist_ids.splice(regist_ids.indexOf(new_id), 1);
-
+            if (this.regist_area_layers[new_id].layer) {
+              this.regist_area_layers[new_id].layer.getPopup().setContent(feature.properties.message);
+              regist_ids.splice(regist_ids.indexOf(new_id), 1);
+            }
           // 登録が無い場合
           } else {
-            this.regist_area_layers[new_id] = layer;
+            this.regist_area_layers[new_id] = {
+              layer: layer,
+              msg_id: feature.properties.msg_id
+            };
             layer.bindPopup(feature.properties.message);
             this.map.addLayer(layer);
           }
@@ -161,8 +171,10 @@ export default {
       });
 
       regist_ids.forEach(id => {
-        this.map.removeLayer(this.regist_area_layers[id]);
-        delete this.regist_area_layers[id];
+        if (this.regist_area_layers[id].layer) {
+          this.map.removeLayer(this.regist_area_layers[id].layer);
+          delete this.regist_area_layers[id].layer;
+        }
       });
     },
     init_map() {
