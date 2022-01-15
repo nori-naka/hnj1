@@ -76,15 +76,28 @@ const distance = (latlng1, latlng2) => {
 }
 
 // 避難所
+// cur_latlng : 自位置のLatLng
+// hj_json    : 避難所のGeoJSON
+// map        : mapオブジェクト
+// ev         : {value, fn} valueは表示状態 fnはclickイベントハンドラ
 let cur_routing = null;
+let last_hj_features = [];
 const get_hinanjyo = (cur_latlng, hj_json, map, ev) => {
+
   L.geoJSON(hj_json, {
     pointToLayer: (pt, latlng) => {
 
+      // 既に表示済みか
+      const dispalyed = last_hj_features.includes(pt);
+
+      // 距離による表示制限
       const pt_name = pt.properties["指定緊急避難場所"] || pt.properties["指定緊急避"];
       const from_dist = distance(cur_latlng, latlng);
-      if (from_dist < FROM_DISTANCE) {
-        console.dir(pt);
+      if (from_dist < FROM_DISTANCE && !dispalyed) {
+        last_hj_features.push(pt);
+
+        console.log(pt);
+        // console.dir(pt);
         return L.marker(latlng, {
           icon: L.divIcon({
             html: `
