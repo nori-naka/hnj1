@@ -31,6 +31,7 @@ const GEO_URL = "https://lma1.herokuapp.com/geojson";
 const GEOJSON_URL = "https://lma1.herokuapp.com";
 // const TEST_URL = "https://lma1.herokuapp.com/test";
 // const GEO_URL = "http://localhost:3000/geojson";
+// const GEOJSON_URL = "http://localhost:3000";
 // const TEST_URL = "http://localhost:3000/test";
 
 export default {
