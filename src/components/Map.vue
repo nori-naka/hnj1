@@ -28,6 +28,7 @@ import { line_init, line_sendMsg } from "./LINE";
 import SignIn from "../components/SignIn.vue";
 
 const GEO_URL = "https://lma1.herokuapp.com/geojson";
+const GEOJSON_URL = "https://lma1.herokuapp.com";
 // const TEST_URL = "https://lma1.herokuapp.com/test";
 // const GEO_URL = "http://localhost:3000/geojson";
 // const TEST_URL = "http://localhost:3000/test";
@@ -277,7 +278,9 @@ export default {
         if (cur_address && cur_address.ken != this.last_address.ken) {
           try {
             const ken_code_json = require("../assets/ken_code.json");
-            this.hj_json = require(`../assets/${ken_code_json[cur_address.ken]}.json`)
+            // this.hj_json = require(`../assets/${ken_code_json[cur_address.ken]}.json`)
+            const res = await fetch(GEOJSON_URL + `/${ken_code_json[cur_address.ken]}.geojson`);
+            this.hj_json = await res.json();
           } catch (err) {
             console.log(err);
           }

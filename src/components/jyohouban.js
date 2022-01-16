@@ -1,16 +1,11 @@
 import "leaflet/dist/leaflet.css"
 import L from "leaflet";
 import { GSI } from "./muni.js";
-
-// import 'leaflet-routing-machine';
-// import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
-// import "./leaflet-routing-machine";
-// import "./leaflet-routing-machine/dist/leaflet-routing-machine.css";
+import { uuidv4 } from "./uuidv4.js";
 
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-// import locale_ja from "./ja.js";
 
 const FROM_DISTANCE = 5; // 自分から避難所の距離（km）
 const HEROKU_URL = "https://lma1.herokuapp.com"
@@ -81,44 +76,44 @@ const distance = (latlng1, latlng2) => {
 // map        : mapオブジェクト
 // ev         : {value, fn} valueは表示状態 fnはclickイベントハンドラ
 let cur_routing = null;
-let last_hj_features = [];
+let displayed_features = [];
+let displayed_layers = {};
+
 const get_hinanjyo = (cur_latlng, hj_json, map, ev) => {
 
   L.geoJSON(hj_json, {
+
     pointToLayer: (pt, latlng) => {
-
-      // 既に表示済みか
-      const dispalyed = last_hj_features.includes(pt);
-
-      // 距離による表示制限
-      const pt_name = pt.properties["指定緊急避難場所"] || pt.properties["指定緊急避"];
       const from_dist = distance(cur_latlng, latlng);
-      if (from_dist < FROM_DISTANCE && !dispalyed) {
-        last_hj_features.push(pt);
 
-        console.log(pt);
-        // console.dir(pt);
-        return L.marker(latlng, {
-          icon: L.divIcon({
-            html: `
-              <div>
-                <img class="icon_style_bg" src="${require("../assets/避難所.png")}" />
-                <div class="icon_label">${pt_name}</div>
-              </div>`,
-            // iconUrl: require("../assets/避難所.png"),
-            // className: "icon_style_bg",
-            iconSize: [40, 40],
-            iconAnchor: [20, 20],
-            popupAnchor: [0, -20],
-            shadowSize: [41, 41]
-          })
-        })
-          .bindPopup(`
-            <h1>${pt_name}</h1>
-            <h3>${pt.properties["所在地"]}</h3>
-            <hr>
-            <div id="info_${pt_name}"></div>
-          `)
+      const arr_features = Object.values(displayed_features);
+      const displayed = arr_features.includes(pt);
+
+      if (from_dist < FROM_DISTANCE) {
+        if (!displayed) {
+          // console.log(arr_features.length);
+          // console.log(`point LAT:${latlng.lat} LNG:${latlng.lng}`);
+          const pt_name = pt.properties["指定緊急避難場所"] || pt.properties["指定緊急避"];
+          return L.marker(latlng, {
+            icon: L.divIcon({
+              html: `
+                <div>
+                  <img class="icon_style_bg" src="${require("../assets/避難所.png")}" />
+                  <div class="icon_label">${pt_name}</div>
+                </div>`,
+              // iconUrl: require("../assets/避難所.png"),
+              // className: "icon_style_bg",
+              iconSize: [40, 40],
+              iconAnchor: [20, 20],
+              popupAnchor: [0, -20],
+              shadowSize: [41, 41]
+            })
+          })        .bindPopup(`
+          <h1>${pt_name}</h1>
+          <h3>${pt.properties["所在地"]}</h3>
+          <hr>
+          <div id="info_${pt_name}"></div>
+        `)
           .on("click", () => {
             const remove_cur_routing = () => {
               if (cur_routing._container.classList.contains("leaflet-routing-container-hide")) {
@@ -161,16 +156,22 @@ const get_hinanjyo = (cur_latlng, hj_json, map, ev) => {
             ev.value = "right";
             ev.fn = remove_cur_routing;
           });
+        }
+        // 表示済みの場合、何もしない
+      } else {
+        if (displayed) {
+          const [id] = Object.keys(displayed_features).filter(id => { return displayed_features[id] == pt });
+          map.removeLayer(displayed_layers[id]);
+          delete displayed_layers[id];
+          delete displayed_features[id];
+        }
       }
     },
-    // onEachFeature: (feature, layer) => {
-    //   console.log(feature);
-    //   console.log(layer);
-    //   layer.bindPopup(
-    //     `<h1>${feature.properties.N06_007}</h1>
-    //     <h3>${hw_type[feature.properties.N06_008]} / ${feature.properties.N06_010}車線</h3>`
-    //   );
-    // }
+    onEachFeature: (feature, layer) => {
+      const id = uuidv4();
+      displayed_layers[id] = layer;
+      displayed_features[id] = feature;
+    }
   }).addTo(map);
 }
 
